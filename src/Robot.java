@@ -8,11 +8,11 @@ public abstract class Robot {
     public boolean enMarche;
     private ArrayList <String> historiqueActions=new ArrayList();
 
-    public Robot(String id, int x, int y, int energie) {
+    public Robot(String id, int x, int y) {
         this.id = id;
         this.x = x;
         this.y = y;
-        this.energie = energie;
+        this.energie = 100;
         this.heuresUtilisation = 0;
         this.enMarche = false;
         this.ajouterHistorique("Robot crée");

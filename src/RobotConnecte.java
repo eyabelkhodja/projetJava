@@ -1,8 +1,8 @@
 public abstract class RobotConnecte extends Robot implements Connectable{
     Boolean connecte;
     String reseauConnecte;
-    public RobotConnecte(String id, int x, int y, int energie) {
-        super(id, x, y, energie);
+    public RobotConnecte(String id, int x, int y) {
+        super(id, x, y);
         this.connecte= false;
         this.reseauConnecte= null;
     }
