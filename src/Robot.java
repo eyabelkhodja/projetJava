@@ -22,31 +22,31 @@ public abstract class Robot {
         this.historiqueActions.add(action);
     }
 
-    public boolean verifierEnergie (int energieRequise){
+    public boolean verifierEnergie (int energieRequise) throws EnergieInsuffisanteException {
         if (this.energie>=energieRequise) {
             return true;
         }
         else {
-           return false; //ajouter l'exception EnergieInsuffisanteException
+            throw new EnergieInsuffisanteException("Energie insuffisante");
         }
     }
 
-    public boolean verifierMaintenance(){
+    public boolean verifierMaintenance() throws MaintenanceRequiseException {
         if (this.heuresUtilisation >= 100) {
-            return true; //ajouter l'exception MaintenanceRequiseException
+            throw new MaintenanceRequiseException("Maintenance requise");
         } else {
             return false;
         }
     }
 
-    public void demarrer() {
+    public void demarrer() throws RobotException {
         if (this.enMarche == false) {
             if (this.energie > 10) {
                 this.enMarche = true;
                 this.ajouterHistorique("Robot demaré");
             } else {
-                this.ajouterHistorique("Robot demaré");
-            } //exception RobitException
+                throw new RobotException ("Energie insuffisante pour démarrer le robot");
+            }
         }
     }
 
