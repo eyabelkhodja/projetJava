@@ -1,6 +1,6 @@
 public class Main {
     public static void main(String[] args) {
-        RobotLivraison WALLE= new RobotLivraison("WALLE", 0, 0);
+        RobotLivraison WALLE= new RobotLivraison("WALLE", 0, 100);
         try {
             WALLE.demarrer();
             WALLE.deplacer(10, 20);
