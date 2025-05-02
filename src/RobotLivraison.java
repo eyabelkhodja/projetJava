@@ -34,7 +34,7 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void deplacer(int x, int y) throws RobotException{
-        double distance = Math.sqrt(Math.pow(x - this.x, 2) + Math.pow(y - this.y, 2));
+        double distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
 
         if (distance > 100) {
             throw new RobotException("Distance supérieure à 100 unités");
@@ -90,6 +90,7 @@ public class RobotLivraison extends RobotConnecte {
         chargerColis("Jardin");
         this.ajouterHistorique("Plante plantée");
     }
+
 
     public String toString() {
         return "RobotLivraison{" +

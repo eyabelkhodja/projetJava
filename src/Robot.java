@@ -68,12 +68,12 @@ public abstract class Robot {
         }
     }
 
-    public void recharger(int quantite){
+    public void recharger(int quantite) throws RobotException {
         if (this.energie + quantite <= 100) {
             this.energie += quantite;
             this.ajouterHistorique("Energie rechargée: " + quantite);
         } else {
-            this.ajouterHistorique("Energie maximale atteinte");
+            throw new RobotException("Energie maximale atteinte");
         }
     }
 
