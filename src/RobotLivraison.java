@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+
+
 public class RobotLivraison extends RobotConnecte {
     private String colisActuel;
     private String destination;
@@ -39,11 +42,58 @@ public class RobotLivraison extends RobotConnecte {
 
         if (this.verifierEnergie((int) Math.ceil(distance * 0.3)) && !this.verifierMaintenance()) {
             this.consommerEnergie((int) Math.ceil(distance * 0.3));
-            this.setHeuresUtilisation(this.getHeuresUtilisation()+ (int) Math.ceil(distance / 10));
+            this.heuresUtilisation+= (int) Math.ceil(distance / 10);
             this.x = x;
             this.y = y;
             this.ajouterHistorique("Robot déplacé vers (" + x + ", " + y + ") sur une distance de " + distance + " unités");
         }
+    }
+
+    public void FaireLivraison(int Destx, int Desty) throws RobotException {
+        if (this.colisActuel != null && !this.enlivraison) {
+            this.enlivraison = true;
+            this.ajouterHistorique("Début de livraison du colis : " + this.colisActuel);
+            this.deplacer(Destx, Desty);
+            this.ajouterHistorique("Livraison terminée à (" + Destx + ", " + Desty + ")");
+            this.colisActuel = null;
+            this.enlivraison = false;
+        } else if (this.enlivraison) {
+            throw new RobotException("Le robot est déjà en livraison");
+        } else {
+            throw new RobotException("Aucun colis à livrer");
+        }
+    }
+
+    public void chargerColis(String destination) throws RobotException {
+        if (this.enlivraison) {
+            throw new RobotException("Le robot est déjà en livraison");
+        }
+        if (this.colisActuel != null) {
+            throw new RobotException("Le robot a déjà un colis");
+        }
+        if (!this.verifierEnergie(ENERGIE_CHARGEMENT)) {
+            throw new RobotException("Énergie insuffisante pour charger un colis");
+        }
+
+        this.colisActuel = "1"; // Indique qu'un colis est chargé
+        this.destination = destination;
+        this.consommerEnergie(ENERGIE_CHARGEMENT);
+        this.ajouterHistorique("Colis chargé pour la destination : " + destination);
+    }
+
+    public String toString() {
+        return "RobotLivraison{" +
+                "colisActuel='" + colisActuel + '\'' +
+                ", destination='" + destination + '\'' +
+                ", enlivraison=" + enlivraison +
+                ", id='" + this.id + '\'' +
+                ", x=" + x +
+                ", y=" + y +
+                ", energie=" + energie +
+                ", heuresUtilisation=" + this.heuresUtilisation +
+                ", enMarche=" + enMarche +
+                ", historiqueActions=" + this.historiqueActions +
+                '}';
     }
 
 }

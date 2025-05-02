@@ -1,12 +1,13 @@
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public abstract class Robot {
-    private String id;
+    protected String id;
     public int x,y;
     public int energie;
-    private int heuresUtilisation;
+    protected int heuresUtilisation;
     public boolean enMarche;
-    private ArrayList <String> historiqueActions=new ArrayList();
+    protected ArrayList <String> historiqueActions=new ArrayList();
 
     public Robot(String id, int x, int y) {
         this.id = id;
@@ -19,7 +20,8 @@ public abstract class Robot {
     }
 
     public void ajouterHistorique(String action) {
-        this.historiqueActions.add(action);
+        LocalDateTime now= LocalDateTime.now();
+        this.historiqueActions.add(now + ":" + action);
     }
 
     public boolean verifierEnergie (int energieRequise) throws EnergieInsuffisanteException {
@@ -92,13 +94,5 @@ public abstract class Robot {
                 ", Position :(" + x + y + ")" +
                 ", Energie=" + energie +
                 ", heuresUtilisation=" + heuresUtilisation;
-    }
-
-    public int getHeuresUtilisation (){
-        return this.heuresUtilisation;
-    }
-
-    public void setHeuresUtilisation(int heuresUtilisation) {
-        this.heuresUtilisation = heuresUtilisation;
     }
 }
