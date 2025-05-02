@@ -76,7 +76,7 @@ public abstract class Robot {
     }
 
     public abstract void deplacer(int x, int y);
-    public abstract void effectuerTache(); //RobotException
+    public abstract void effectuerTache() throws RobotException;
 
     public String getHistorique(){
         String historique = "";
