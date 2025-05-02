@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public abstract class Robot {
     private String id;
-    private int x,y;
+    public int x,y;
     public int energie;
     private int heuresUtilisation;
     public boolean enMarche;
@@ -75,7 +75,7 @@ public abstract class Robot {
         }
     }
 
-    public abstract void deplacer(int x, int y);
+    public abstract void deplacer(int x, int y) throws RobotException;
     public abstract void effectuerTache() throws RobotException;
 
     public String getHistorique(){
@@ -92,5 +92,13 @@ public abstract class Robot {
                 ", Position :(" + x + y + ")" +
                 ", Energie=" + energie +
                 ", heuresUtilisation=" + heuresUtilisation;
+    }
+
+    public int getHeuresUtilisation (){
+        return this.heuresUtilisation;
+    }
+
+    public void setHeuresUtilisation(int heuresUtilisation) {
+        this.heuresUtilisation = heuresUtilisation;
     }
 }
