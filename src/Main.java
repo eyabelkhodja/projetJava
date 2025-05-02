@@ -1,5 +1,14 @@
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, World!");
+        RobotLivraison WALLE= new RobotLivraison("WALLE", 0, 0);
+        try {
+            WALLE.demarrer();
+            WALLE.deplacer(10, 20);
+            WALLE.consommerEnergie(20);
+            WALLE.arreter();
+        } catch (RobotException e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 }
