@@ -7,12 +7,12 @@ public class RobotFrame extends JFrame implements ActionListener {
 
     private JPanel robotPanel;
     RobotLivraison robot;
-    JButton tache, livraison, deplacer;
+    JButton tache, livraison, deplacer, recycler, planter, economie;
 
     public RobotFrame(RobotLivraison robot) {
         setTitle("Robot Control Panel");
         this.robot = robot;
-        setSize(600, 400);
+        setSize(1500, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -25,11 +25,17 @@ public class RobotFrame extends JFrame implements ActionListener {
         tache = new JButton("Effectuer Tache");
         livraison = new JButton("Livraison");
         deplacer = new JButton("Deplacer");
+        recycler = new JButton("Recycler");
+        planter = new JButton("Planter");
+        economie = new JButton("Economiser");
 
         // Register action listeners
         tache.addActionListener(this);
         livraison.addActionListener(this);
         deplacer.addActionListener(this);
+        recycler.addActionListener(this);
+        planter.addActionListener(this);
+        economie.addActionListener(this);
 
         buttonPanel.add(tache);
         buttonPanel.add(livraison);
@@ -64,7 +70,27 @@ public class RobotFrame extends JFrame implements ActionListener {
             case "Deplacer":
                 openDeplacerDialog(); // Now we use your method correctly
                 break;
-
+            case "Recycler":
+                try {
+                    robot.recycler();
+                } catch (RobotException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                }
+                break;
+            case "Planter":
+                try {
+                    robot.planter();
+                } catch (RobotException ex) {
+                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                }
+                break;
+//            case "Economiser":
+//                try {
+//                    robot.economiser();
+//                } catch (RobotException ex) {
+//                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+//                }
+//                break;
             default:
                 JOptionPane.showMessageDialog(this, "Action non reconnue", "Avertissement", JOptionPane.WARNING_MESSAGE);
                 break;
@@ -72,17 +98,19 @@ public class RobotFrame extends JFrame implements ActionListener {
     }
 
     private void openDeplacerDialog() {
-        JFrame inputFrame = new JFrame("Déplacer le Robot");
-        inputFrame.setSize(300, 150);
+        JFrame inputFrame = new JFrame(" Déplacer le Robot ");
+        inputFrame.setSize(1000, 600);
         inputFrame.setLayout(new GridLayout(3, 2));
 
-        JLabel xLabel = new JLabel("X:");
+        JLabel description = new JLabel("Veuillez donner les coordonnées X et Y pour le déplacement du robot:");
+
+        JLabel xLabel = new JLabel("    X:");
         JTextField xField = new JTextField();
 
-        JLabel yLabel = new JLabel("Y:");
+        JLabel yLabel = new JLabel("    Y:");
         JTextField yField = new JTextField();
 
-        JButton okButton = new JButton("OK");
+        JButton okButton = new JButton(" OK ");
 
         okButton.addActionListener(event -> {
             try {
@@ -97,11 +125,14 @@ public class RobotFrame extends JFrame implements ActionListener {
             }
         });
 
+        inputFrame.setLayout(new GridLayout(5, 2, 5, 5));
+        inputFrame.add(description);
+        inputFrame.add(new JLabel());
         inputFrame.add(xLabel);
         inputFrame.add(xField);
         inputFrame.add(yLabel);
         inputFrame.add(yField);
-        inputFrame.add(new JLabel()); // empty cell
+        inputFrame.add(new JLabel());
         inputFrame.add(okButton);
 
         inputFrame.setLocationRelativeTo(this);

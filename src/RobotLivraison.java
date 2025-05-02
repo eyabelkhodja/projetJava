@@ -81,6 +81,16 @@ public class RobotLivraison extends RobotConnecte {
         this.ajouterHistorique("Colis chargé pour la destination : " + destination);
     }
 
+    public void recycler () throws RobotException {
+        chargerColis("Centre de recyclage");
+        this.ajouterHistorique("Déchet recyclé");
+    }
+
+    public void planter () throws RobotException {
+        chargerColis("Jardin");
+        this.ajouterHistorique("Plante plantée");
+    }
+
     public String toString() {
         return "RobotLivraison{" +
                 "colisActuel='" + colisActuel + '\'' +
