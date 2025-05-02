@@ -31,5 +31,66 @@ public abstract class Robot {
         }
     }
 
+    public boolean verifierMaintenance(){
+        if (this.heuresUtilisation >= 100) {
+            return true; //ajouter l'exception MaintenanceRequiseException
+        } else {
+            return false;
+        }
+    }
 
+    public void demarrer() {
+        if (this.enMarche == false) {
+            if (this.energie > 10) {
+                this.enMarche = true;
+                this.ajouterHistorique("Robot demaré");
+            } else {
+                this.ajouterHistorique("Robot demaré");
+            } //exception RobitException
+        }
+    }
+
+    public void arreter(){
+        if (this.enMarche == true) {
+            this.enMarche = false;
+            this.ajouterHistorique("Robot arreté");
+        }
+    }
+
+    public void consommerEnergie(int quantite) {
+        if (this.energie >= quantite) {
+            this.energie -= quantite;
+            this.ajouterHistorique("Energie consommée: " + quantite);
+        } else {
+            this.ajouterHistorique("Energie insuffisante pour la consommation");
+        }
+    }
+
+    public void recharger(int quantite){
+        if (this.energie + quantite <= 100) {
+            this.energie += quantite;
+            this.ajouterHistorique("Energie rechargée: " + quantite);
+        } else {
+            this.ajouterHistorique("Energie maximale atteinte");
+        }
+    }
+
+    public abstract void deplacer(int x, int y);
+    public abstract void effectuerTache(); //RobotException
+
+    public String getHistorique(){
+        String historique = "";
+        for (String action : this.historiqueActions) {
+            historique += action + "\n";
+        }
+        return historique;
+    }
+
+    public String toString() {
+        return "Robot{" +
+                "id='" + id + '\'' +
+                ", Position :(" + x + y + ")" +
+                ", Energie=" + energie +
+                ", heuresUtilisation=" + heuresUtilisation;
+    }
 }
