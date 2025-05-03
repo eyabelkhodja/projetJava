@@ -8,7 +8,7 @@ public class Main {
             WALLE.deplacer(10, 20);
             WALLE.consommerEnergie(20);
             WALLE.arreter();
-            RobotFrame frame = new RobotFrame(WALLE);
+            Window frame = new Window(WALLE);
         } catch (RobotException e) {
             System.out.println(e.getMessage());
         }
