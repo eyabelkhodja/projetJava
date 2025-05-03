@@ -16,6 +16,9 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void effectuerTache() throws RobotException {
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
         if (this.enlivraison == false) {
             if (this.colisActuel != null && this.destination != null) {
                 this.ajouterHistorique("Robot en livraison de " + this.colisActuel + " vers " + this.destination);
@@ -34,6 +37,9 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void deplacer(int x, int y) throws RobotException{
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
         double distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
 
         if (distance > 100) {
@@ -50,6 +56,10 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void FaireLivraison(int Destx, int Desty) throws RobotException {
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
+
         if (this.colisActuel != null && !this.enlivraison) {
             this.enlivraison = true;
             this.ajouterHistorique("Début de livraison du colis : " + this.colisActuel);
@@ -65,6 +75,13 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void chargerColis(String destination) throws RobotException {
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
+        }
+
         if (this.enlivraison) {
             throw new RobotException("Le robot est déjà en livraison");
         }
@@ -82,11 +99,24 @@ public class RobotLivraison extends RobotConnecte {
     }
 
     public void recycler () throws RobotException {
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
+        }
         chargerColis("Centre de recyclage");
         this.ajouterHistorique("Déchet recyclé");
     }
 
     public void planter () throws RobotException {
+        if (!this.enMarche) {
+            throw new RobotException("Le robot est éteint");
+        }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
+        }
+
         chargerColis("Jardin");
         this.ajouterHistorique("Plante plantée");
     }

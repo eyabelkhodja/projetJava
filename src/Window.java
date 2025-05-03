@@ -10,7 +10,7 @@ public class Window extends JFrame implements ActionListener {
 
     private RobotLivraison robot;
 
-    private JButton marche_arret,tache, livraison, deplacer, recycler, planter, recharger;
+    private JButton marche_arret,tache, livraison, deplacer, recycler, planter, recharger,maintenance;
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon logo = new ImageIcon("src/logo.png");
@@ -68,6 +68,7 @@ public class Window extends JFrame implements ActionListener {
         recycler = new JButton("Recycler");
         planter = new JButton("Planter");
         recharger = new JButton("Recharger");
+        maintenance = new JButton("Maintenance");
 
         tache.addActionListener(this);
         marche_arret.addActionListener(this);
@@ -76,6 +77,7 @@ public class Window extends JFrame implements ActionListener {
         recycler.addActionListener(this);
         planter.addActionListener(this);
         recharger.addActionListener(this);
+        maintenance.addActionListener(this);
 
         buttonPanel.add(marche_arret);
         buttonPanel.add(tache);
@@ -84,6 +86,7 @@ public class Window extends JFrame implements ActionListener {
         buttonPanel.add(recycler);
         buttonPanel.add(planter);
         buttonPanel.add(recharger);
+        buttonPanel.add(maintenance);
 
         add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -100,7 +103,15 @@ public class Window extends JFrame implements ActionListener {
 
         switch (action) {
             case "Marche/Arret":
-                robot.marchearret();
+                if(robot.enMarche) {
+                    robot.arreter();
+                } else {
+                    try {
+                        robot.demarrer();
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                }
                 updateMarcheArretButtonColor();
                 break;
             case "Effectuer Tache":
@@ -133,6 +144,14 @@ public class Window extends JFrame implements ActionListener {
                         handleRobotException(ex);
                     }
                 });
+                case "Maintenance":
+                    try {
+                        if(!robot.verifierMaintenance()){
+                            JOptionPane.showMessageDialog(this, "Aucune maintenance requise", "Info", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    } catch (RobotException ex) {
+                        JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                    }
                 break;
         }
     }
