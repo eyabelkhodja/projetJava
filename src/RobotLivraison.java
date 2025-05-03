@@ -103,7 +103,6 @@ public class RobotLivraison extends RobotConnecte {
                 ", energie=" + energie +
                 ", heuresUtilisation=" + this.heuresUtilisation +
                 ", enMarche=" + enMarche +
-                ", historiqueActions=" + this.historiqueActions +
                 '}';
     }
 

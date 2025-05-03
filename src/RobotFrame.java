@@ -35,6 +35,15 @@ public class RobotFrame extends JFrame implements ActionListener {
         setSize(1500, 1000);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        display.setToolTipText(robot.toString());
+
+        display.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                display.setToolTipText("Energie restante: "+robot.energie);
+            }
+        });
+
         robotPanel = new JPanel();
         robotPanel.setBackground(Color.LIGHT_GRAY);
         add(robotPanel, BorderLayout.CENTER);
@@ -66,6 +75,7 @@ public class RobotFrame extends JFrame implements ActionListener {
         add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
+
     }
 
     private void updateRobotPosition() {
