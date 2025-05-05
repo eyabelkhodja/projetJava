@@ -18,6 +18,7 @@ public class Window extends JFrame implements ActionListener {
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon logo = new ImageIcon("src/logo.png");
+    private JTextArea robotInfo;
 
     public Window(RobotLivraison robot) {
         this.robot = robot;
@@ -25,11 +26,10 @@ public class Window extends JFrame implements ActionListener {
         setTitle("Robot Control Panel");
         setLayout(new BorderLayout());
         setIconImage(logo.getImage());
-        setSize(1500, 1000);
+        setSize(750, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        setupRobotImage();
-        setupButtons();
+        setupLayout();
 
         robotPanel = new JPanel();
         robotPanel.setBackground(Color.LIGHT_GRAY);
@@ -38,48 +38,67 @@ public class Window extends JFrame implements ActionListener {
         setVisible(true);
     }
 
-    private void setupRobotImage() {
+    private void setupLayout() {
+        // Left side: image panel
         imagePanel = new JPanel();
-        imagePanel.setPreferredSize(new Dimension(1500, 800));
+        imagePanel.setPreferredSize(new Dimension(500, 500));
         imagePanel.setLayout(null);
+        imagePanel.setBackground(Color.WHITE);
 
-        Image scaledImage = robotIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+        Image scaledImage = robotIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
         display = new JLabel(scaledIcon);
-        display.setBounds(robot.x, robot.y, 150, 150);
-        display.setToolTipText("Energie restante: "+robot.energie);
-
-        display.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                display.setToolTipText("Energie restante: "+robot.energie);
-            }
-        });
+        display.setBounds(robot.x, robot.y, 80, 80);
+        display.setToolTipText("Energie restante: " + robot.energie);
 
         imagePanel.add(display);
-        add(imagePanel, BorderLayout.WEST);
-    }
 
-    private void setupButtons() {
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        // Right side: vertical button panel
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setPreferredSize(new Dimension(250, 500));
+
         buttons = new JButton[buttonNames.length];
 
         for (int i = 0; i < buttonNames.length; i++) {
             JButton button = new JButton(buttonNames[i]);
             button.addActionListener(this);
+            button.setAlignmentX(Component.CENTER_ALIGNMENT);
+            buttonPanel.add(Box.createVerticalStrut(10)); // space between buttons
             buttonPanel.add(button);
             buttons[i] = button;
         }
-
-        add(buttonPanel, BorderLayout.SOUTH);
         updateMarcheArretButtonColor();
+
+        // Add a JTextArea to display robot information
+        robotInfo = new JTextArea(robot.toString());
+        robotInfo.setEditable(false);
+        robotInfo.setLineWrap(true);
+        robotInfo.setWrapStyleWord(true);
+        robotInfo.setBackground(buttonPanel.getBackground());
+        robotInfo.setPreferredSize(new Dimension(150, 300));
+        robotInfo.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 0)); // Add top margin
+        robotInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        buttonPanel.add(robotInfo);
+
+        // Add to frame
+        getContentPane().add(imagePanel, BorderLayout.WEST);
+        getContentPane().add(buttonPanel, BorderLayout.EAST);
     }
+
 
     private void updateRobotPosition() {
         display.setBounds(robot.x, robot.y, 150, 150);
         imagePanel.revalidate();
         imagePanel.repaint();
+    }
+
+    private void updateRobotInfo() {
+        if (robotInfo != null) {
+            robotInfo.setText(robot.toString());
+        }
     }
 
     @Override
@@ -101,6 +120,7 @@ public class Window extends JFrame implements ActionListener {
                 break;
             case "Effectuer Tache":
                 effectuerTache();
+                updateRobotInfo();
                 break;
 
             case "Deplacer":
@@ -112,6 +132,7 @@ public class Window extends JFrame implements ActionListener {
                         handleRobotException(ex);
                     }
                 });
+                updateRobotInfo();
                 break;
             case "Recycler":
                 handleRecycler();
@@ -127,6 +148,7 @@ public class Window extends JFrame implements ActionListener {
                         handleRobotException(ex);
                     }
                 });
+                updateRobotInfo();
                 break;
                 case "Maintenance":
                     try {
@@ -136,6 +158,7 @@ public class Window extends JFrame implements ActionListener {
                     } catch (RobotException ex) {
                         JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                     }
+                    updateRobotInfo();
                 break;
         }
     }

@@ -171,16 +171,16 @@ public void chargerColis(String nomColis) throws RobotException {
 
 
     public String toString() {
-        return "RobotLivraison{" +
-                "colisActuel='" + colisActuel + '\'' +
-                ", destination='" + destination + '\'' +
-                ", enlivraison=" + enlivraison +
-                ", id='" + this.id + '\'' +
-                ", x=" + x +
-                ", y=" + y +
-                ", energie=" + energie +
-                ", heuresUtilisation=" + this.heuresUtilisation +
-                ", enMarche=" + enMarche +
+        return "RobotLivraison:" + "\n" +
+                "id='" + this.id + "\n" +
+                "x=" + x +
+                ", y=" + y + "\n" +
+                "energie=" + energie + "\n" +
+                "heuresUtilisation=" + this.heuresUtilisation + "\n" +
+                "enMarche=" + (enMarche?"oui":"non") + "\n" +
+                "colisActuel='" + colisActuel + "\n" +
+                "destination='" + destination + "\n" +
+                "enlivraison=" + (enlivraison?"oui":"non") +
                 '}';
     }
 
