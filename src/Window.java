@@ -36,7 +36,7 @@ public class Window extends JFrame implements ActionListener {
 
     private void setupRobotImage() {
         imagePanel = new JPanel();
-        imagePanel.setPreferredSize(new Dimension(1500, 1000));
+        imagePanel.setPreferredSize(new Dimension(1500, 800));
         imagePanel.setLayout(null);
 
         Image scaledImage = robotIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
@@ -60,35 +60,22 @@ public class Window extends JFrame implements ActionListener {
     private void setupButtons() {
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
-        tache = new JButton("Effectuer Tache");
-        marche_arret = new JButton("Marche/Arret");
-        updateMarcheArretButtonColor();
-        livraison = new JButton("Livraison");
-        deplacer = new JButton("Deplacer");
-        recycler = new JButton("Recycler");
-        planter = new JButton("Planter");
-        recharger = new JButton("Recharger");
-        maintenance = new JButton("Maintenance");
-
-        tache.addActionListener(this);
-        marche_arret.addActionListener(this);
-        livraison.addActionListener(this);
-        deplacer.addActionListener(this);
-        recycler.addActionListener(this);
-        planter.addActionListener(this);
-        recharger.addActionListener(this);
-        maintenance.addActionListener(this);
-
-        buttonPanel.add(marche_arret);
-        buttonPanel.add(tache);
-        buttonPanel.add(livraison);
-        buttonPanel.add(deplacer);
-        buttonPanel.add(recycler);
-        buttonPanel.add(planter);
-        buttonPanel.add(recharger);
-        buttonPanel.add(maintenance);
+        creerBouton("Marche/Arret", buttonPanel);
+        creerBouton("Effectuer Tache", buttonPanel);
+        creerBouton("Livraison", buttonPanel);
+        creerBouton("Deplacer", buttonPanel);
+        creerBouton("Recycler", buttonPanel);
+        creerBouton("Planter", buttonPanel);
+        creerBouton("Recharger", buttonPanel);
+        creerBouton("Maintenance", buttonPanel);
 
         add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void creerBouton(String nom, JPanel panel) {
+        JButton button = new JButton(nom);
+        button.addActionListener(this);
+        panel.add(button);
     }
 
     private void updateRobotPosition() {
