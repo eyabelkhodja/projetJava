@@ -13,9 +13,8 @@ public class Window extends JFrame implements ActionListener {
 
     private JButton[] buttons;
     private String[] buttonNames = {
-            "marche_arret", "Effectuer Tache", "Livraison", "Deplacer",
-            "Recycler", "Planter", "Recharger", "Maintenance"
-    };
+            "marche_arret", "Effectuer Tache", "Deplacer",
+            "Recycler", "Planter", "Recharger", "Maintenance"};
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon logo = new ImageIcon("src/logo.png");
@@ -67,21 +66,15 @@ public class Window extends JFrame implements ActionListener {
         buttons = new JButton[buttonNames.length];
 
         for (int i = 0; i < buttonNames.length; i++) {
-            creerBouton(buttonNames[i], i, buttonPanel);
+            JButton button = new JButton(buttonNames[i]);
+            button.addActionListener(this);
+            buttonPanel.add(button);
+            buttons[i] = button;
         }
 
         add(buttonPanel, BorderLayout.SOUTH);
         updateMarcheArretButtonColor();
     }
-
-
-    private void creerBouton(String nom, int i, JPanel panel) {
-        JButton button = new JButton(nom);
-        button.addActionListener(this);
-        panel.add(button);
-        buttons[i] = button;
-    }
-
 
     private void updateRobotPosition() {
         display.setBounds(robot.x, robot.y, 150, 150);
@@ -107,11 +100,9 @@ public class Window extends JFrame implements ActionListener {
                 updateMarcheArretButtonColor();
                 break;
             case "Effectuer Tache":
-                handleEffectuerTache();
+                effectuerTache();
                 break;
-            case "Livraison":
-                handleLivraison();
-                break;
+
             case "Deplacer":
                 openInputDialog("Déplacer le Robot", "X", "Y", (x, y) -> {
                     try {
@@ -158,22 +149,86 @@ public class Window extends JFrame implements ActionListener {
             button.setForeground(Color.WHITE);
         }
     }
+    private void effectuerTache(){
+        if (robot.getEnlivraison()) {
+            openInputDialog("Coordonnées de Livraison", "Destination X", "Destination Y", (x, y) -> {
+                try {
+                    robot.FaireLivraison(x, y);
+                    updateRobotPosition();
+                } catch (RobotException ex) {
+                    handleRobotException(ex);
+                }
+            });
+        } else {
+            JButton boutonOui = new JButton("Oui");
+            JButton boutonNon = new JButton("Non");
 
-    private void handleEffectuerTache() {
-        try {
-            robot.effectuerTache();
-        } catch (RobotException ex) {
-            handleRobotException(ex);
+            JPanel panel = new JPanel();
+            panel.add(new JLabel("Voulez-vous charger un nouveau colis ?"));
+            panel.add(boutonOui);
+            panel.add(boutonNon);
+
+            JDialog dialog = new JDialog(this, "Chargement de colis", true);
+            dialog.getContentPane().add(panel);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+
+            boutonOui.addActionListener(evt -> {
+                dialog.dispose(); // Ferme la première boîte de dialogue
+
+                // Crée un champ de saisie pour le nom du colis
+                JTextField nomColisField = new JTextField(15);
+                JPanel saisiePanel = new JPanel();
+                saisiePanel.add(new JLabel("Nom du colis :"));
+                saisiePanel.add(nomColisField);
+
+                int result = JOptionPane.showConfirmDialog(this, saisiePanel, "Saisir le nom du colis", JOptionPane.OK_CANCEL_OPTION);
+
+                if (result == JOptionPane.OK_OPTION) {
+                    String nomColis = nomColisField.getText().trim();
+                    if (!nomColis.isEmpty()) {
+                        try {
+                            if (robot.energie >= RobotLivraison.ENERGIE_CHARGEMENT) {
+                                robot.energie -= RobotLivraison.ENERGIE_CHARGEMENT;
+                                robot.chargerColis(nomColis);
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Énergie insuffisante pour charger un colis.");
+                            }
+                        } catch (RobotException ex) {
+                            handleRobotException(ex);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Le nom du colis ne peut pas être vide.");
+                    }
+                }
+            });
+
+            boutonNon.addActionListener(evt -> {
+                dialog.dispose();
+                robot.ajouterHistorique("En attente de colis");
+            });
+
+            dialog.setVisible(true);
+        }
+    }
+    private void faireLivraison() {
+        if (robot.getColisActuel()!=null) {
+            openInputDialog("Coordonnées de Livraison", "Destination X", "Destination Y", (x, y) -> {
+                try {
+                    robot.FaireLivraison(x, y);
+                    updateRobotPosition();
+                    JOptionPane.showMessageDialog(this, "Colis livré avec succès");
+
+                } catch (RobotException ex) {
+                    handleRobotException(ex);
+                }
+            });
+        } else {
+            JOptionPane.showMessageDialog(this, "Aucun colis à livrer");
         }
     }
 
-    private void handleLivraison() {
-        try {
-            robot.FaireLivraison(50, 50);
-        } catch (RobotException ex) {
-            handleRobotException(ex);
-        }
-    }
+
 
     private void handleRecycler() {
         try {

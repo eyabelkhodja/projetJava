@@ -14,6 +14,18 @@ public class RobotLivraison extends RobotConnecte {
         this.destination= null;
         this.enlivraison= false;
     }
+    public boolean getEnlivraison() {
+        return this.enlivraison;
+    }
+    public void setEnlivraison(boolean enlivraison) {
+        this.enlivraison = enlivraison;
+    }
+    public String getColisActuel() {
+        return colisActuel;
+    }
+    public void setColisActuel(String colisActuel) {
+        this.colisActuel = colisActuel;
+    }
 
     public void effectuerTache() throws RobotException {
         if (!this.enMarche) {
@@ -61,7 +73,7 @@ public class RobotLivraison extends RobotConnecte {
         }
     }
 
-    public void FaireLivraison(int Destx, int Desty) throws RobotException {
+    public void FaireLivraison(int Destx, int Desty) throws RobotException, EnergieInsuffisanteException {
         if (!this.enMarche) {
             throw new RobotException("Le robot est éteint");
         }
@@ -69,12 +81,15 @@ public class RobotLivraison extends RobotConnecte {
             throw new RobotException("Maintenance requise");
         }
 
-        if (this.colisActuel != null && !this.enlivraison) {
-            this.enlivraison = true;
+        if (this.colisActuel != null) {
+            if (!this.verifierEnergie(ENERGIE_LIVRAISON)) {
+                throw new RobotException("Énergie insuffisante pour la livraison");
+            }
             this.ajouterHistorique("Début de livraison du colis : " + this.colisActuel);
             this.deplacer(Destx, Desty);
             this.ajouterHistorique("Livraison terminée à (" + Destx + ", " + Desty + ")");
             this.colisActuel = null;
+            this.energie-=RobotLivraison.ENERGIE_LIVRAISON;
             this.enlivraison = false;
         } else if (this.enlivraison) {
             throw new RobotException("Le robot est déjà en livraison");
@@ -83,29 +98,53 @@ public class RobotLivraison extends RobotConnecte {
         }
     }
 
-    public void chargerColis(String destination) throws RobotException {
-        if (!this.enMarche) {
-            throw new RobotException("Le robot est éteint");
-        }
-        if (this.verifierMaintenance()) {
-            throw new RobotException("Maintenance requise");
-        }
-
-        if (this.enlivraison) {
-            throw new RobotException("Le robot est déjà en livraison");
-        }
-        if (this.colisActuel != null) {
-            throw new RobotException("Le robot a déjà un colis");
-        }
-        if (!this.verifierEnergie(ENERGIE_CHARGEMENT)) {
-            throw new RobotException("Énergie insuffisante pour charger un colis");
-        }
-
-        this.colisActuel = "1"; // Indique qu'un colis est chargé
-        this.destination = destination;
-        this.consommerEnergie(ENERGIE_CHARGEMENT);
-        this.ajouterHistorique("Colis chargé pour la destination : " + destination);
+//    public void chargerColis(String destination) throws RobotException {
+//        if (!this.enMarche) {
+//            throw new RobotException("Le robot est éteint");
+//        }
+//        if (this.verifierMaintenance()) {
+//            throw new RobotException("Maintenance requise");
+//        }
+//
+//        if (this.enlivraison) {
+//            throw new RobotException("Le robot est déjà en livraison");
+//        }
+//        if (this.colisActuel != null) {
+//            throw new RobotException("Le robot a déjà un colis");
+//        }
+//        if (!this.verifierEnergie(ENERGIE_CHARGEMENT)) {
+//            throw new RobotException("Énergie insuffisante pour charger un colis");
+//        }
+//
+//        this.colisActuel = "1";
+//        this.destination = destination;
+//        this.consommerEnergie(ENERGIE_CHARGEMENT);
+//        this.enlivraison = true;
+//        this.ajouterHistorique("Colis chargé pour la destination : " + destination);
+//    }
+public void chargerColis(String nomColis) throws RobotException {
+    if (!this.enMarche) {
+        throw new RobotException("Le robot est éteint");
     }
+    if (this.verifierMaintenance()) {
+        throw new RobotException("Maintenance requise");
+    }
+
+    if (this.enlivraison) {
+        throw new RobotException("Le robot est déjà en livraison");
+    }
+    if (this.colisActuel != null) {
+        throw new RobotException("Le robot a déjà un colis");
+    }
+    if (!this.verifierEnergie(ENERGIE_CHARGEMENT)) {
+        throw new RobotException("Énergie insuffisante pour charger un colis");
+    }
+
+    this.colisActuel = nomColis;
+    this.consommerEnergie(ENERGIE_CHARGEMENT);
+    this.enlivraison = true;
+    this.ajouterHistorique("Colis chargé pour la destination : " + destination);
+}
 
     public void recycler () throws RobotException {
         if (!this.enMarche) {
