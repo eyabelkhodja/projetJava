@@ -19,6 +19,9 @@ public class RobotLivraison extends RobotConnecte {
         if (!this.enMarche) {
             throw new RobotException("Le robot est éteint");
         }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
+        }
         if (this.enlivraison == false) {
             if (this.colisActuel != null && this.destination != null) {
                 this.ajouterHistorique("Robot en livraison de " + this.colisActuel + " vers " + this.destination);
@@ -40,6 +43,9 @@ public class RobotLivraison extends RobotConnecte {
         if (!this.enMarche) {
             throw new RobotException("Le robot est éteint");
         }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
+        }
         double distance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
 
         if (distance > 100) {
@@ -58,6 +64,9 @@ public class RobotLivraison extends RobotConnecte {
     public void FaireLivraison(int Destx, int Desty) throws RobotException {
         if (!this.enMarche) {
             throw new RobotException("Le robot est éteint");
+        }
+        if (this.verifierMaintenance()) {
+            throw new RobotException("Maintenance requise");
         }
 
         if (this.colisActuel != null && !this.enlivraison) {

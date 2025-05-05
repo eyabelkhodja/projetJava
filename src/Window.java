@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+
 public class Window extends JFrame implements ActionListener {
 
     private JPanel robotPanel;
@@ -10,7 +11,11 @@ public class Window extends JFrame implements ActionListener {
 
     private RobotLivraison robot;
 
-    private JButton marche_arret,tache, livraison, deplacer, recycler, planter, recharger,maintenance;
+    private JButton[] buttons;
+    private String[] buttonNames = {
+            "marche_arret", "Effectuer Tache", "Livraison", "Deplacer",
+            "Recycler", "Planter", "Recharger", "Maintenance"
+    };
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon logo = new ImageIcon("src/logo.png");
@@ -59,24 +64,24 @@ public class Window extends JFrame implements ActionListener {
 
     private void setupButtons() {
         JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttons = new JButton[buttonNames.length];
 
-        creerBouton("Marche/Arret", buttonPanel);
-        creerBouton("Effectuer Tache", buttonPanel);
-        creerBouton("Livraison", buttonPanel);
-        creerBouton("Deplacer", buttonPanel);
-        creerBouton("Recycler", buttonPanel);
-        creerBouton("Planter", buttonPanel);
-        creerBouton("Recharger", buttonPanel);
-        creerBouton("Maintenance", buttonPanel);
+        for (int i = 0; i < buttonNames.length; i++) {
+            creerBouton(buttonNames[i], i, buttonPanel);
+        }
 
         add(buttonPanel, BorderLayout.SOUTH);
+        updateMarcheArretButtonColor();
     }
 
-    private void creerBouton(String nom, JPanel panel) {
+
+    private void creerBouton(String nom, int i, JPanel panel) {
         JButton button = new JButton(nom);
         button.addActionListener(this);
         panel.add(button);
+        buttons[i] = button;
     }
+
 
     private void updateRobotPosition() {
         display.setBounds(robot.x, robot.y, 150, 150);
@@ -89,7 +94,7 @@ public class Window extends JFrame implements ActionListener {
         String action = e.getActionCommand();
 
         switch (action) {
-            case "Marche/Arret":
+            case "marche_arret":
                 if(robot.enMarche) {
                     robot.arreter();
                 } else {
@@ -131,6 +136,7 @@ public class Window extends JFrame implements ActionListener {
                         handleRobotException(ex);
                     }
                 });
+                break;
                 case "Maintenance":
                     try {
                         if(!robot.verifierMaintenance()){
@@ -143,14 +149,16 @@ public class Window extends JFrame implements ActionListener {
         }
     }
     private void updateMarcheArretButtonColor() {
+        JButton button = buttons[0];
         if (robot.enMarche) {
-            marche_arret.setBackground(Color.GREEN);
-            marche_arret.setForeground(Color.BLACK);
+            button.setBackground(Color.GREEN);
+            button.setForeground(Color.BLACK);
         } else {
-            marche_arret.setBackground(Color.RED);
-            marche_arret.setForeground(Color.WHITE);
+            button.setBackground(Color.RED);
+            button.setForeground(Color.WHITE);
         }
     }
+
     private void handleEffectuerTache() {
         try {
             robot.effectuerTache();
