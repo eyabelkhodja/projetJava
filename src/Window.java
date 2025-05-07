@@ -109,9 +109,11 @@ public class Window extends JFrame implements ActionListener {
             case "marche_arret":
                 if(robot.enMarche) {
                     robot.arreter();
+                    updateRobotInfo();
                 } else {
                     try {
                         robot.demarrer();
+                        updateRobotInfo();
                     } catch (RobotException ex) {
                         handleRobotException(ex);
                     }
