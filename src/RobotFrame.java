@@ -7,12 +7,12 @@ public class RobotFrame extends JFrame implements ActionListener {
 
     private JPanel robotPanel;
     RobotLivraison robot;
-    JButton tache, livraison, deplacer, recycler, planter, recharger;
+    JButton tache, deplacer, recycler, planter, recharger;
 
     ImageIcon robotIcon = new ImageIcon("src/robot.png");
     ImageIcon logo = new ImageIcon("src/logo.png");
 
-    JLabel display= new JLabel();
+    JLabel display = new JLabel();
 
     JPanel image = new JPanel();
 
@@ -24,9 +24,9 @@ public class RobotFrame extends JFrame implements ActionListener {
         Image scaledImage = robotIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scaledImage);
 
-        display= new JLabel(scaledIcon);
+        display = new JLabel(scaledIcon);
         display.setBounds(robot.x, robot.y, 150, 150);
-        image.setPreferredSize(new Dimension(1500, 1000));  // Set the preferred size of the panel
+        image.setPreferredSize(new Dimension(1500, 1000));
         image.setLayout(null);
         image.add(display);
         add(image, BorderLayout.WEST);
@@ -40,7 +40,13 @@ public class RobotFrame extends JFrame implements ActionListener {
         display.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
-                display.setToolTipText("Energie restante: "+robot.energie);
+                display.setToolTipText(robot.toString());
+                // Update border based on seed availability
+                if (robot.toString().contains("graines disponibles=0")) {
+                    display.setBorder(null);
+                } else {
+                    display.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3));
+                }
             }
         });
 
@@ -51,22 +57,18 @@ public class RobotFrame extends JFrame implements ActionListener {
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
         tache = new JButton("Effectuer Tache");
-        livraison = new JButton("Livraison");
         deplacer = new JButton("Deplacer");
         recycler = new JButton("Recycler");
         planter = new JButton("Planter");
         recharger = new JButton("Recharger");
 
-        // Register action listeners
         tache.addActionListener(this);
-        livraison.addActionListener(this);
         deplacer.addActionListener(this);
         recycler.addActionListener(this);
         planter.addActionListener(this);
         recharger.addActionListener(this);
 
         buttonPanel.add(tache);
-        buttonPanel.add(livraison);
         buttonPanel.add(deplacer);
         buttonPanel.add(recycler);
         buttonPanel.add(planter);
@@ -75,7 +77,6 @@ public class RobotFrame extends JFrame implements ActionListener {
         add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
-
     }
 
     private void updateRobotPosition() {
@@ -90,47 +91,115 @@ public class RobotFrame extends JFrame implements ActionListener {
 
         switch (action) {
             case "Effectuer Tache":
-                try {
-                    robot.effectuerTache();
-                } catch (RobotException ex) {
-                    if (ex.getMessage().equals("Energie insuffisante")){
-                        rechargeDialogue();
-                    }
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                if (!robot.enMarche) {
+                    JOptionPane.showMessageDialog(this, "Le robot doit être démarré pour effectuer une tâche", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    break;
                 }
-                break;
+                if (robot.getEnlivraison()) {
+                    openDeplacerDialogForDelivery();
+                } else {
+                    JButton boutonOui = new JButton("Oui");
+                    JButton boutonNon = new JButton("Non");
 
-            case "Livraison":
-                try {
-                    robot.FaireLivraison(50, 50); // Example coordinates
-                } catch (RobotException ex) {
-                    if (ex.getMessage().equals("Energie insuffisante")){
-                        rechargeDialogue();
-                    }
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                    JPanel panel = new JPanel();
+                    panel.add(new JLabel("Voulez-vous charger un nouveau colis ?"));
+                    panel.add(boutonOui);
+                    panel.add(boutonNon);
+
+                    JDialog dialog = new JDialog(this, "Chargement de colis", true);
+                    dialog.getContentPane().add(panel);
+                    dialog.pack();
+                    dialog.setLocationRelativeTo(this);
+
+                    boutonOui.addActionListener(evt -> {
+                        dialog.dispose();
+
+                        JTextField nomColisField = new JTextField(15);
+                        JPanel saisiePanel = new JPanel();
+                        saisiePanel.add(new JLabel("Nom du colis :"));
+                        saisiePanel.add(nomColisField);
+
+                        int result = JOptionPane.showConfirmDialog(this, saisiePanel, "Saisir le nom du colis", JOptionPane.OK_CANCEL_OPTION);
+                        if (result == JOptionPane.OK_OPTION) {
+                            String nomColis = nomColisField.getText().trim();
+                            if (!nomColis.isEmpty()) {
+                                try {
+                                    robot.chargerColis(nomColis);
+                                    openDeplacerDialogForDelivery();
+                                } catch (RobotException ex) {
+                                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                                    if (ex.getMessage().contains("Énergie insuffisante")) {
+                                        rechargeDialogue();
+                                    }
+                                }
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Le nom du colis ne peut pas être vide.");
+                            }
+                        }
+                    });
+
+                    boutonNon.addActionListener(evt -> {
+                        dialog.dispose();
+                        try {
+                            robot.effectuerTache();
+                        } catch (RobotException ex) {
+                            JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                        }
+                    });
+
+                    dialog.setVisible(true);
                 }
                 break;
 
             case "Deplacer":
+                if (!robot.enMarche) {
+                    JOptionPane.showMessageDialog(this, "Le robot doit être démarré pour se déplacer", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
                 openDeplacerDialog();
                 break;
+
             case "Recycler":
+                if (!robot.enMarche) {
+                    JOptionPane.showMessageDialog(this, "Le robot doit être démarré pour recycler", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
                 try {
+                    boolean wastePresent = (robot.x == 0 && robot.y == 0) || (robot.x == 50 && robot.y == 50);
+                    if (wastePresent) {
+                        JOptionPane.showMessageDialog(this, "Déchet trouvé à la position actuelle (" + robot.x + ", " + robot.y + "), recyclage en cours...");
+                    }
                     robot.recycler();
+                    updateRobotPosition();
+                    JOptionPane.showMessageDialog(this, "Recyclage terminé : 1 graine produite", "Succès", JOptionPane.INFORMATION_MESSAGE);
                 } catch (RobotException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                 }
                 break;
+
             case "Planter":
+                if (!robot.enMarche) {
+                    JOptionPane.showMessageDialog(this, "Le robot doit être démarré pour planter", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    break;
+                }
                 try {
+                    if (robot.toString().contains("graines disponibles=0")) {
+                        JOptionPane.showMessageDialog(this, "Aucune graine disponible, veuillez recycler des déchets pour obtenir des graines", "Info", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Graine disponible, plantation en cours...");
+                    }
                     robot.planter();
+                    updateRobotPosition();
+                    JOptionPane.showMessageDialog(this, "Plantation terminée : offset de carbone +5", "Succès", JOptionPane.INFORMATION_MESSAGE);
                 } catch (RobotException ex) {
                     JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                 }
                 break;
+
             case "Recharger":
                 rechargeDialogue();
                 break;
+
             default:
                 JOptionPane.showMessageDialog(this, "Action non reconnue", "Avertissement", JOptionPane.WARNING_MESSAGE);
                 break;
@@ -158,18 +227,62 @@ public class RobotFrame extends JFrame implements ActionListener {
                 int y = Integer.parseInt(yField.getText());
                 robot.deplacer(x, y);
                 updateRobotPosition();
-                inputFrame.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(inputFrame, "Veuillez entrer des entiers valides.");
             } catch (RobotException ex) {
-                if (ex.getMessage().equals("Energie insuffisante")){
+                JOptionPane.showMessageDialog(inputFrame, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                if (ex.getMessage().contains("Énergie insuffisante")) {
                     rechargeDialogue();
                 }
-                JOptionPane.showMessageDialog(inputFrame, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
             }
+            inputFrame.dispose();
         });
 
         inputFrame.setLayout(new GridLayout(5, 2, 5, 5));
+        inputFrame.add(description);
+        inputFrame.add(new JLabel());
+        inputFrame.add(xLabel);
+        inputFrame.add(xField);
+        inputFrame.add(yLabel);
+        inputFrame.add(yField);
+        inputFrame.add(new JLabel());
+        inputFrame.add(okButton);
+
+        inputFrame.setLocationRelativeTo(this);
+        inputFrame.setVisible(true);
+    }
+
+    private void openDeplacerDialogForDelivery() {
+        JFrame inputFrame = new JFrame("Coordonnées de Livraison");
+        inputFrame.setSize(1000, 600);
+        inputFrame.setLayout(new GridLayout(5, 2, 5, 5));
+
+        JLabel description = new JLabel("Veuillez donner les coordonnées X et Y pour la livraison:");
+        JLabel xLabel = new JLabel("    X:");
+        JTextField xField = new JTextField();
+        JLabel yLabel = new JLabel("    Y:");
+        JTextField yField = new JTextField();
+        JButton okButton = new JButton("OK");
+
+        okButton.addActionListener(event -> {
+            try {
+                int x = Integer.parseInt(xField.getText());
+                int y = Integer.parseInt(yField.getText());
+                robot.destination = x + "," + y;
+                robot.effectuerTache();
+                updateRobotPosition();
+                inputFrame.dispose();
+                JOptionPane.showMessageDialog(this, "Colis livré avec succès");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(inputFrame, "Veuillez entrer des entiers valides.");
+            } catch (RobotException ex) {
+                JOptionPane.showMessageDialog(inputFrame, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                if (ex.getMessage().contains("Énergie insuffisante")) {
+                    rechargeDialogue();
+                }
+            }
+        });
+
         inputFrame.add(description);
         inputFrame.add(new JLabel());
         inputFrame.add(xLabel);
@@ -202,8 +315,7 @@ public class RobotFrame extends JFrame implements ActionListener {
                 inputFrame.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(inputFrame, "Veuillez entrer des entiers valides.");
-        }
-            catch (RobotException ex){
+            } catch (RobotException ex) {
                 JOptionPane.showMessageDialog(inputFrame, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
             }
         });
