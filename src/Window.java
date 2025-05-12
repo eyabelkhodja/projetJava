@@ -399,6 +399,7 @@ public class Window extends JFrame implements ActionListener {
                     try {
                         robot.recharger(val);
                         updateRobotInfo();
+                        JOptionPane.showMessageDialog(this, "Merci d'avoir opté pour la recharge photovoltaïque. Profitons du soleil!", "Recharge Terminée", JOptionPane.INFORMATION_MESSAGE);
                     } catch (RobotException ex) {
                         handleRobotException(ex);
                     }
