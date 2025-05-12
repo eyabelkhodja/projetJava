@@ -62,48 +62,29 @@ public class RobotLivraison extends RobotConnecte {
             throw new RobotException("Maintenance requise");
         }
 
+        // Calculate total straight-line distance
         double totalDistance = Math.sqrt(Math.pow(this.x - x, 2) + Math.pow(this.y - y, 2));
-        ajouterHistorique("Début du déplacement vers (" + x + ", " + y + ") sur une distance totale de " + totalDistance + " unités");
+        ajouterHistorique("Début du déplacement vers (" + x + ", " + y + ") sur une distance totale de " + String.format("%.2f", totalDistance) + " unités");
 
-        int segments = (int) Math.ceil(totalDistance / 100.0);
-        double segmentDistance = totalDistance / segments;
-        int totalEnergyRequired = 0;
+        // Calculate energy required: 15 energy per 100 distance units
+        int totalEnergyRequired = (int) Math.ceil(totalDistance / 100.0) * 15;
         StringBuilder energyDetails = new StringBuilder("Détails du trajet :\n");
-
-        double dx = x - this.x;
-        double dy = y - this.y;
-        double segmentDx = dx / segments;
-        double segmentDy = dy / segments;
-        int currentX = this.x;
-        int currentY = this.y;
-
-        for (int i = 0; i < segments; i++) {
-            int nextX, nextY;
-            if (i == segments - 1) {
-                nextX = x;
-                nextY = y;
-            } else {
-                nextX = (int) (currentX + segmentDx);
-                nextY = (int) (currentY + segmentDy);
-            }
-            double segmentDist = Math.sqrt(Math.pow(currentX - nextX, 2) + Math.pow(currentY - nextY, 2));
-            int energyForSegment = (int) Math.ceil(segmentDist * 0.3);
-            totalEnergyRequired += energyForSegment;
-            energyDetails.append("Segment ").append(i + 1).append(": Distance = ").append(String.format("%.2f", segmentDist))
-                    .append(" unités, Énergie requise = ").append(energyForSegment).append(" unités\n");
-            currentX = nextX;
-            currentY = nextY;
-        }
-        energyDetails.append("Nombre total de segments : ").append(segments).append("\n")
-                .append("Énergie totale requise : ").append(totalEnergyRequired).append(" unités\n")
+        energyDetails.append("Distance totale = ").append(String.format("%.2f", totalDistance))
+                .append(" unités, Énergie requise = ").append(totalEnergyRequired).append(" unités\n")
                 .append("Énergie disponible : ").append(this.energie).append(" unités");
 
+        // Verify sufficient energy
         if (!this.verifierEnergie(totalEnergyRequired)) {
             throw new RobotException("Énergie insuffisante pour ce déplacement\n" + energyDetails.toString());
         }
 
-        currentX = this.x;
-        currentY = this.y;
+        // Simulate segmented movement for logging, but apply energy in one step
+        int segments = (int) Math.ceil(totalDistance / 100.0); // Segments for logging only
+        double segmentDx = (x - this.x) / (double) segments;
+        double segmentDy = (y - this.y) / (double) segments;
+        int currentX = this.x;
+        int currentY = this.y;
+
         for (int i = 0; i < segments; i++) {
             if (this.verifierMaintenance()) {
                 throw new RobotException("Maintenance requise pendant le déplacement");
@@ -119,21 +100,19 @@ public class RobotLivraison extends RobotConnecte {
             }
 
             double segmentDist = Math.sqrt(Math.pow(currentX - nextX, 2) + Math.pow(currentY - nextY, 2));
-            int energyForSegment = (int) Math.ceil(segmentDist * 0.3);
-
-            this.consommerEnergie(energyForSegment);
-            this.heuresUtilisation += (int) Math.ceil(segmentDist / 10);
-            this.x = nextX;
-            this.y = nextY;
-            this.ajouterHistorique("Segment " + (i + 1) + "/" + segments + " : déplacé vers (" + nextX + ", " + nextY + ") sur " + segmentDist + " unités");
+            this.ajouterHistorique("Segment " + (i + 1) + "/" + segments + " : déplacé vers (" + nextX + ", " + nextY + ") sur " + String.format("%.2f", segmentDist) + " unités");
 
             currentX = nextX;
             currentY = nextY;
         }
 
+        // Apply energy consumption and update position in one step
+        this.consommerEnergie(totalEnergyRequired);
+        this.heuresUtilisation += (int) Math.ceil(totalDistance / 10);
         this.x = x;
         this.y = y;
-        this.ajouterHistorique("Déplacement terminé vers (" + x + ", " + y + ") après " + segments + " segments");
+
+        this.ajouterHistorique("Déplacement terminé vers (" + x + ", " + y + ") avec " + totalEnergyRequired + " unités d'énergie consommées");
     }
 
     public void FaireLivraison(int Destx, int Desty) throws RobotException {
@@ -155,7 +134,6 @@ public class RobotLivraison extends RobotConnecte {
         this.deplacer(Destx, Desty);
         this.destination = Destx + "," + Desty;
         this.ajouterHistorique("Livraison terminée à (" + Destx + ", " + Desty + ")");
-        this.consommerEnergie(ENERGIE_LIVRAISON);
         this.colisActuel = null;
         this.enlivraison = false;
     }
@@ -202,8 +180,7 @@ public class RobotLivraison extends RobotConnecte {
         // Collect waste and deliver to recycling center
         this.wasteCollected += 10; // Collect 10 units of waste
         chargerColis("Déchet pour recyclage");
-        this.FaireLivraison(300, 300); // Deliver to recycling center at (100, 100)
-
+//        this.FaireLivraison(300, 300); // Deliver to recycling center at (100, 100)
         // Convert waste to resources (seeds)
         this.recycledResources += this.wasteCollected / 10; // 1 seed per 10 units of waste
         this.ajouterHistorique("Déchet recyclé : " + this.wasteCollected + " unités de déchet transformées en " + (this.wasteCollected / 10) + " graines");
@@ -225,8 +202,7 @@ public class RobotLivraison extends RobotConnecte {
 
         // Consume a seed and plant at the garden location
         this.recycledResources -= 1; // Consume 1 seed
-        chargerColis("Graine pour planter");
-        this.FaireLivraison(200, 200); // Deliver to garden at (200, 200)
+        chargerColis("Graine pour planter");// Deliver to garden at (200, 200)
 
         // Increase environmental impact
         this.carbonOffset += 5; // Each plant offsets 5 units of carbon

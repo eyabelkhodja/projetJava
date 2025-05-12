@@ -18,7 +18,7 @@ public class Window extends JFrame implements ActionListener {
             "Recycler", "Planter", "Recharger", "Maintenance"};
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
-    private ImageIcon zebla = new ImageIcon("src/zebla.png"); // Corrected path
+    private ImageIcon zebla = new ImageIcon("src/zebla.png");
     private ImageIcon logo = new ImageIcon("src/logo.png");
     private JTextArea robotInfo;
 
@@ -28,24 +28,54 @@ public class Window extends JFrame implements ActionListener {
         setTitle("Robot Control Panel");
         setLayout(new BorderLayout());
         setIconImage(logo.getImage());
-        setSize(950, 750); // Increased size to accommodate larger imagePanel
+        setSize(950, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setupLayout();
 
         robotPanel = new JPanel();
         robotPanel.setBackground(Color.LIGHT_GRAY);
-        add(robotPanel, BorderLayout.SOUTH); // Adjusted to SOUTH
-
+        add(robotPanel, BorderLayout.SOUTH);
 
         setVisible(true);
+
+        // Show welcome dialogue after window is visible
+        showWelcomeDialog();
+    }
+
+    private void showWelcomeDialog() {
+        String message = "<html><body style='width: 400px; padding: 10px;'>" +
+                "<h2>Bienvenue dans le Panneau de Contrôle du Robot</h2>" +
+                "<p>Cette application vous permet de contrôler un robot de livraison et de recyclage. Voici un aperçu de l'interface :</p>" +
+                "<h3>Carte (Panneau de Gauche)</h3>" +
+                "<ul>" +
+                "<li><b>Icône du Robot</b> : Indique la position actuelle du robot (x, y). Survolez pour voir son niveau d'énergie.</li>" +
+                "<li><b>Icônes de Déchets</b> : Situées à (0, 400) et (300, 50), marquées par des icônes zebla, indiquant les déchets recyclables.</li>" +
+                "<li><b>Centre de Recyclage</b> : Une étiquette à (300, 300) marquant le centre de recyclage.</li>" +
+                "</ul>" +
+                "<h3>Panneau de Contrôle (Panneau de Droite)</h3>" +
+                "<ul>" +
+                "<li><b>marche_arret</b> : Démarre ou arrête le robot. Vert lorsqu'il est en marche, rouge lorsqu'il est arrêté.</li>" +
+                "<li><b>Effectuer Tache</b> : Exécute une tâche (par exemple, livrer un colis ou en charger un nouveau).</li>" +
+                "<li><b>Deplacer</b> : Déplace le robot vers les coordonnées (x, y) spécifiées. <i>Consomme 15 unités d'énergie tous les 100 unités de distance parcourue.</i></li>" +
+                "<li><b>Recycler</b> : Recycle les déchets à la position du robot, produisant une graine.</li>" +
+                "<li><b>Planter</b> : Plante une graine pour compenser le carbone, si des graines sont disponibles.</li>" +
+                "<li><b>Recharger</b> : Recharge l'énergie du robot d'un pourcentage spécifié.</li>" +
+                "<li><b>Maintenance</b> : Vérifie si une maintenance est requise.</li>" +
+                "</ul>" +
+                "<h3>État du Robot (Bas du Panneau de Droite)</h3>" +
+                "<p>La zone de texte affiche l'état actuel du robot, y compris l'énergie, les graines disponibles et l'état de livraison.</p>" +
+                "<p>Cliquez sur <b>OK</b> pour commencer à utiliser l'application !</p>" +
+                "</body></html>";
+
+        JOptionPane.showMessageDialog(this, message, "Welcome to Robot Control Panel", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void setupLayout() {
         imagePanel = new JPanel();
         imagePanel.setPreferredSize(new Dimension(700, 700));
         imagePanel.setLayout(null);
-        imagePanel.setBackground(Color.WHITE); // Ensure panel is visible
+        imagePanel.setBackground(Color.WHITE);
 
         // Robot icon
         Image scaledRobotImage;
@@ -61,7 +91,7 @@ public class Window extends JFrame implements ActionListener {
         display.setBounds(robot.x, robot.y, 80, 80);
         display.setToolTipText("Energie restante: " + robot.energie);
 
-        // Zebla icons (replacing waste markers)
+        // Zebla icons
         Image scaledZeblaImage;
         try {
             scaledZeblaImage = zebla.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
@@ -86,10 +116,16 @@ public class Window extends JFrame implements ActionListener {
 
         // Add the "Centre de Recyclage" label (last to ensure it’s on top)
         JLabel recyclingLabel = new JLabel("<html><center><b>Centre de Recyclage</b></center></html>");
-        recyclingLabel.setBounds(300, 300, 200, 40);
-        recyclingLabel.setForeground(new Color(34, 139, 34)); // Green color
-        recyclingLabel.setFont(new Font("Arial", Font.BOLD, 16)); // Bold and larger font
+        recyclingLabel.setBounds(200, 300, 200, 40);
+        recyclingLabel.setForeground(new Color(34, 139, 34));
+        recyclingLabel.setFont(new Font("Arial", Font.BOLD, 16));
         imagePanel.add(recyclingLabel);
+
+        JLabel gardenLabel = new JLabel("<html><center><b>Jardin</b></center></html>");
+        gardenLabel.setBounds(350, 500, 200, 40);
+        gardenLabel.setForeground(new Color(34, 139, 34));
+        gardenLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        imagePanel.add(gardenLabel);
 
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -118,10 +154,9 @@ public class Window extends JFrame implements ActionListener {
 
         buttonPanel.add(robotInfo);
 
-        getContentPane().add(imagePanel, BorderLayout.CENTER); // Changed to CENTER
+        getContentPane().add(imagePanel, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.EAST);
 
-        // Force repaint to ensure label is rendered
         imagePanel.revalidate();
         imagePanel.repaint();
     }
@@ -151,11 +186,14 @@ public class Window extends JFrame implements ActionListener {
 
     private void handleRecycler() {
         try {
-            boolean wastePresent = (robot.x == 300 && robot.y == 50) || (robot.x == 400 && robot.y == 0);
+            boolean wastePresent = (robot.x == 300 && robot.y == 50) || (robot.x == 0 && robot.y == 400);
             if (wastePresent) {
                 JOptionPane.showMessageDialog(this, "Déchet trouvé à la position actuelle (" + robot.x + ", " + robot.y + "), recyclage en cours...");
             }
             robot.recycler();
+            robot.FaireLivraison(200,300);
+            updateRobotPosition();
+            imagePanel.remove(zeblaDisplay2);
             updateRobotPosition();
             updateRobotInfo();
             JOptionPane.showMessageDialog(this, "Recyclage terminé : 1 graine produite", "Succès", JOptionPane.INFORMATION_MESSAGE);
@@ -172,6 +210,7 @@ public class Window extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Graine disponible, plantation en cours...");
             }
             robot.planter();
+            robot.FaireLivraison(350, 500);
             updateRobotPosition();
             updateRobotInfo();
             JOptionPane.showMessageDialog(this, "Plantation terminée : offset de carbone +5", "Succès", JOptionPane.INFORMATION_MESSAGE);
