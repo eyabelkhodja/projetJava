@@ -28,6 +28,11 @@ public class RobotFrame extends JFrame implements ActionListener {
         display.setBounds(robot.x, robot.y, 150, 150);
         image.setPreferredSize(new Dimension(1500, 1000));
         image.setLayout(null);
+
+        JLabel recyclingLabel = new JLabel("centre de recyclage");
+        recyclingLabel.setBounds(100, 100, 150, 30); // Adjust size as needed
+        image.add(recyclingLabel);
+
         image.add(display);
         add(image, BorderLayout.WEST);
 

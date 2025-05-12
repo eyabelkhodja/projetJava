@@ -194,7 +194,7 @@ public class RobotLivraison extends RobotConnecte {
 
         // Simulate checking for waste at the current location
         // For simplicity, assume waste is present if the robot is at (0, 0) or (50, 50)
-        boolean wastePresent = (this.x == 0 && this.y == 0) || (this.x == 50 && this.y == 50);
+        boolean wastePresent = (this.x == 0 && this.y == 400) || (this.x == 300 && this.y == 50);
         if (!wastePresent) {
             throw new RobotException("Aucun déchet à recycler à la position actuelle (" + this.x + ", " + this.y + ")");
         }
@@ -202,7 +202,7 @@ public class RobotLivraison extends RobotConnecte {
         // Collect waste and deliver to recycling center
         this.wasteCollected += 10; // Collect 10 units of waste
         chargerColis("Déchet pour recyclage");
-        this.FaireLivraison(100, 100); // Deliver to recycling center at (100, 100)
+        this.FaireLivraison(300, 300); // Deliver to recycling center at (100, 100)
 
         // Convert waste to resources (seeds)
         this.recycledResources += this.wasteCollected / 10; // 1 seed per 10 units of waste
