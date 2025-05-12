@@ -216,6 +216,8 @@ public class RobotLivraison extends RobotConnecte {
                 "x=" + x + ", y=" + y + "\n" +
                 "energie=" + energie + "\n" +
                 "heuresUtilisation=" + this.heuresUtilisation + "\n" +
+                "connecté=" + (this.connecte ? "oui" : "non") + "\n" +
+                "réseau=" + this.reseauConnecte + "\n" +
                 "enMarche=" + (enMarche ? "oui" : "non") + "\n" +
                 "colisActuel='" + colisActuel + "\n" +
                 "destination='" + destination + "\n" +

@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.function.Consumer;
 
 public class Window extends JFrame implements ActionListener {
 
@@ -15,7 +16,8 @@ public class Window extends JFrame implements ActionListener {
     private JButton[] buttons;
     private String[] buttonNames = {
             "marche_arret", "Effectuer Tache", "Deplacer",
-            "Recycler", "Planter", "Recharger", "Maintenance"};
+            "Recycler", "Planter", "Recharger", "Maintenance",
+            "Connecter", "Déconnecter", "Envoyer Données"};
 
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon zebla = new ImageIcon("src/zebla.png");
@@ -51,24 +53,28 @@ public class Window extends JFrame implements ActionListener {
                 "<ul>" +
                 "<li><b>Icône du Robot</b> : Indique la position actuelle du robot (x, y). Survolez pour voir son niveau d'énergie.</li>" +
                 "<li><b>Icônes de Déchets</b> : Situées à (0, 400) et (300, 50), marquées par des icônes zebla, indiquant les déchets recyclables.</li>" +
-                "<li><b>Centre de Recyclage</b> : Une étiquette à (300, 300) marquant le centre de recyclage.</li>" +
+                "<li><b>Centre de Recyclage</b> : Une étiquette à (200, 300) marquant le centre de recyclage.</li>" +
+                "<li><b>Jardin</b> : Une étiquette à (350, 500) marquant l'emplacement pour planter des graines.</li>" +
                 "</ul>" +
                 "<h3>Panneau de Contrôle (Panneau de Droite)</h3>" +
                 "<ul>" +
                 "<li><b>marche_arret</b> : Démarre ou arrête le robot. Vert lorsqu'il est en marche, rouge lorsqu'il est arrêté.</li>" +
-                "<li><b>Effectuer Tache</b> : Exécute une tâche (par exemple, livrer un colis ou en charger un nouveau).</li>" +
+                "<li><b>Effectuer Tache</b> : Exécute une tâche (par exemple, livrer un colis ou en charger un nouveau). <i> Charger un colis consomme 5 unités d'énergie. </i></li>" +
                 "<li><b>Deplacer</b> : Déplace le robot vers les coordonnées (x, y) spécifiées. <i>Consomme 15 unités d'énergie tous les 100 unités de distance parcourue.</i></li>" +
                 "<li><b>Recycler</b> : Recycle les déchets à la position du robot, produisant une graine.</li>" +
                 "<li><b>Planter</b> : Plante une graine pour compenser le carbone, si des graines sont disponibles.</li>" +
                 "<li><b>Recharger</b> : Recharge l'énergie du robot d'un pourcentage spécifié.</li>" +
                 "<li><b>Maintenance</b> : Vérifie si une maintenance est requise.</li>" +
+                "<li><b>Connecter</b> : Connecte le robot à un réseau spécifié. <i> Consomme 5 unités d'énergie. </i></li>" +
+                "<li><b>Déconnecter</b> : Déconnecte le robot du réseau actuel.</li>" +
+                "<li><b>Envoyer Données</b> : Envoie des données via le réseau connecté. <i> Consomme 3 unités d'énergie. </i></li>" +
                 "</ul>" +
                 "<h3>État du Robot (Bas du Panneau de Droite)</h3>" +
-                "<p>La zone de texte affiche l'état actuel du robot, y compris l'énergie, les graines disponibles et l'état de livraison.</p>" +
+                "<p>La zone de texte affiche l'état actuel du robot, y compris l'énergie, les graines disponibles, l'état de livraison et l'état de connexion.</p>" +
                 "<p>Cliquez sur <b>OK</b> pour commencer à utiliser l'application !</p>" +
                 "</body></html>";
 
-        JOptionPane.showMessageDialog(this, message, "Welcome to Robot Control Panel", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, message, "Bienvenue dans le Panneau de Contrôle du Robot", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void setupLayout() {
@@ -189,11 +195,16 @@ public class Window extends JFrame implements ActionListener {
             boolean wastePresent = (robot.x == 300 && robot.y == 50) || (robot.x == 0 && robot.y == 400);
             if (wastePresent) {
                 JOptionPane.showMessageDialog(this, "Déchet trouvé à la position actuelle (" + robot.x + ", " + robot.y + "), recyclage en cours...");
+                if (robot.x == 300 && robot.y == 50) {
+                    imagePanel.remove(zeblaDisplay2);
+                } else if (robot.x == 0 && robot.y == 400) {
+                    imagePanel.remove(zeblaDisplay1);
+                }
+                imagePanel.revalidate();
+                imagePanel.repaint();
             }
             robot.recycler();
-            robot.FaireLivraison(200,300);
-            updateRobotPosition();
-            imagePanel.remove(zeblaDisplay2);
+            robot.FaireLivraison(200, 300);
             updateRobotPosition();
             updateRobotInfo();
             JOptionPane.showMessageDialog(this, "Recyclage terminé : 1 graine produite", "Succès", JOptionPane.INFORMATION_MESSAGE);
@@ -252,6 +263,33 @@ public class Window extends JFrame implements ActionListener {
                 inputFrame.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(inputFrame, "Veuillez entrer des entiers valides.");
+            }
+        });
+
+        inputFrame.add(new JLabel());
+        inputFrame.add(okButton);
+
+        inputFrame.setLocationRelativeTo(this);
+        inputFrame.setVisible(true);
+    }
+
+    private void openStringInputDialog(String title, String label, Consumer<String> action) {
+        JFrame inputFrame = new JFrame(title);
+        inputFrame.setSize(400, 150);
+        inputFrame.setLayout(new GridLayout(3, 2, 5, 5));
+
+        JTextField field = new JTextField();
+        inputFrame.add(new JLabel(label + ":"));
+        inputFrame.add(field);
+
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(evt -> {
+            String input = field.getText().trim();
+            if (!input.isEmpty()) {
+                action.accept(input);
+                inputFrame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(inputFrame, "Veuillez entrer une valeur valide.");
             }
         });
 
@@ -412,9 +450,39 @@ public class Window extends JFrame implements ActionListener {
                         JOptionPane.showMessageDialog(this, "Aucune maintenance requise", "Info", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (RobotException ex) {
-                    JOptionPane.showMessageDialog(this, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                    handleRobotException(ex);
                 }
                 updateRobotInfo();
+                break;
+
+            case "Connecter":
+                openStringInputDialog("Connexion au Réseau", "Nom du réseau", (reseau) -> {
+                    try {
+                        robot.connecter(reseau);
+                        updateRobotInfo();
+                        JOptionPane.showMessageDialog(this, "Connecté au réseau " + reseau, "Succès", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                });
+                break;
+
+            case "Déconnecter":
+                robot.deconnecter();
+                updateRobotInfo();
+                JOptionPane.showMessageDialog(this, "Robot déconnecté", "Succès", JOptionPane.INFORMATION_MESSAGE);
+                break;
+
+            case "Envoyer Données":
+                openStringInputDialog("Envoyer des Données", "Données à envoyer", (donnees) -> {
+                    try {
+                        robot.envoyerDonnees(donnees);
+                        updateRobotInfo();
+                        JOptionPane.showMessageDialog(this, "Données envoyées : " + donnees, "Succès", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                });
                 break;
         }
     }
