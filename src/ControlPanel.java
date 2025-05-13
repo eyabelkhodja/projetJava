@@ -8,7 +8,7 @@ public class ControlPanel extends JPanel {
     private String[] buttonNames = {
             "marche_arret", "Effectuer Tache", "Deplacer",
             "Recycler", "Planter", "Recharger", "Maintenance",
-            "Connecter", "Déconnecter", "Envoyer Données"};
+            "Connecter", "Déconnecter", "Envoyer Données", "Historique"};
 
     public ControlPanel(RobotLivraison robot) {
         this.robot = robot;

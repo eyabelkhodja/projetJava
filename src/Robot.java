@@ -35,6 +35,8 @@ public abstract class Robot {
 
     public boolean verifierMaintenance() throws MaintenanceRequiseException {
         if (this.heuresUtilisation >= 100) {
+            this.heuresUtilisation = 0;
+            this.ajouterHistorique("Maintenance effectuée");
             throw new MaintenanceRequiseException("Maintenance requise");
         } else {
             return false;

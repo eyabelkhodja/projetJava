@@ -51,6 +51,8 @@ public class Actions implements ActionListener {
             case "Envoyer Données":
                 handleEnvoyerDonnees();
                 break;
+            case "Historique":
+                handleHistorique();
         }
     }
 
@@ -221,11 +223,11 @@ public class Actions implements ActionListener {
 
     private void handleMaintenance() {
         try {
-            if (!robot.verifierMaintenance()) {
+            if(!robot.verifierMaintenance()) {
                 JOptionPane.showMessageDialog(window, "Aucune maintenance requise", "Info", JOptionPane.INFORMATION_MESSAGE);
             }
-        } catch (RobotException ex) {
-            handleRobotException(ex);
+        } catch (MaintenanceRequiseException ex) {
+            JOptionPane.showMessageDialog(window, "Maintenance en cours...", "Info", JOptionPane.INFORMATION_MESSAGE);
         }
         controlPanel.updateRobotInfo();
     }
@@ -262,6 +264,21 @@ public class Actions implements ActionListener {
 
     private void handleRobotException(RobotException ex) {
         JOptionPane.showMessageDialog(window, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+    }
+    private void handleHistorique() {
+        StringBuilder historique = new StringBuilder();
+        for (String action : robot.historiqueActions) {
+            historique.append(action).append("\n");
+        }
+        JTextArea textArea = new JTextArea(historique.toString());
+        textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(300, 200));
+
+        JOptionPane.showMessageDialog(window, scrollPane, "Historique des Actions", JOptionPane.INFORMATION_MESSAGE);
     }
 
     interface InputAction {
