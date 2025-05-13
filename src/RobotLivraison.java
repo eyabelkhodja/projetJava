@@ -2,7 +2,7 @@ import java.time.LocalDateTime;
 
 public class RobotLivraison extends RobotConnecte {
     private String colisActuel;
-    public String destination;
+    private String destination;
     private Boolean enlivraison;
     public static final int ENERGIE_LIVRAISON = 15;
     public static final int ENERGIE_CHARGEMENT = 5;
@@ -25,6 +25,9 @@ public class RobotLivraison extends RobotConnecte {
     public boolean getEnlivraison() {
         return this.enlivraison;
     }
+    public String getDestination() {return this.destination;}
+    public void setDestination(String destination) {this.destination = destination;}
+
 
     public void effectuerTache() throws RobotException {
         if (!this.enMarche) {

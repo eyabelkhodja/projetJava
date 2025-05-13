@@ -3,10 +3,10 @@ import java.util.ArrayList;
 
 public abstract class Robot {
     protected String id;
-    public int x,y;
-    public int energie;
+    protected int x,y;
+    protected int energie;
     protected int heuresUtilisation;
-    public boolean enMarche;
+    protected boolean enMarche;
     protected ArrayList <String> historiqueActions=new ArrayList();
 
     public Robot(String id, int x, int y) {
@@ -45,7 +45,7 @@ public abstract class Robot {
         if (this.enMarche == false) {
             if (this.energie > 10) {
                 this.enMarche = true;
-                this.ajouterHistorique("Robot demaré");
+                this.ajouterHistorique("Robot ydimari");
             } else {
                 throw new RobotException ("Energie insuffisante pour démarrer le robot");
             }
