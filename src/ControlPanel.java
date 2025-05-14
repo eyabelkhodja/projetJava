@@ -56,6 +56,7 @@ public class ControlPanel extends JPanel {
         }
     }
 
+
     public JButton[] getButtons() {
         return buttons;
     }

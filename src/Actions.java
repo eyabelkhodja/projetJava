@@ -3,7 +3,7 @@ import java.awt.event.*;
 import java.awt.*;
 import java.util.function.Consumer;
 
-public class Actions implements ActionListener {
+public class Actions implements ActionListener, KeyListener {
     private Window window;
     private RobotLivraison robot;
     private ImagePanel imagePanel;
@@ -14,6 +14,8 @@ public class Actions implements ActionListener {
         this.robot = robot;
         this.imagePanel = imagePanel;
         this.controlPanel = controlPanel;
+        this.window.setFocusable(true);
+        this.window.addKeyListener(this);
     }
 
     @Override
@@ -64,6 +66,7 @@ public class Actions implements ActionListener {
             try {
                 robot.demarrer();
                 controlPanel.updateRobotInfo();
+                window.requestFocusInWindow();
             } catch (RobotException ex) {
                 handleRobotException(ex);
             }
@@ -200,6 +203,7 @@ public class Actions implements ActionListener {
                 JOptionPane.showMessageDialog(window, "Graine disponible, plantation en cours...");
             }
             robot.planter();
+            imagePanel.showPlante();
             robot.FaireLivraison(350, 500);
             imagePanel.updateRobotPosition();
             controlPanel.updateRobotInfo();
@@ -346,4 +350,68 @@ public class Actions implements ActionListener {
         inputFrame.setLocationRelativeTo(window);
         inputFrame.setVisible(true);
     }
+    public void keyPressed(KeyEvent e) {
+        int code = e.getKeyCode();
+        if(robot.enMarche) {
+            switch (code) {
+                case KeyEvent.VK_LEFT:
+                    if(robot.x>=10){
+                    try {
+                        robot.deplacer(robot.x - 10, robot.y);
+                        robot.recharger(13);
+                        imagePanel.updateRobotPosition();
+                        controlPanel.updateRobotInfo();
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                    }
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    if(robot.x<=window.getWidth()-10){
+                    try {
+                        robot.deplacer(robot.x + 10, robot.y);
+                        robot.recharger(13);
+                        imagePanel.updateRobotPosition();
+                        controlPanel.updateRobotInfo();
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    if(robot.y<=window.getHeight()-10){
+                    try {
+                        robot.deplacer(robot.x, robot.y + 10);
+                        robot.recharger(13);
+                        imagePanel.updateRobotPosition();
+                        controlPanel.updateRobotInfo();
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                    }
+                    break;
+                case KeyEvent.VK_UP:
+                    if(robot.y>=10){
+                    try {
+                        robot.deplacer(robot.x, robot.y - 10);
+                        robot.recharger(13);
+                        imagePanel.updateRobotPosition();
+                        controlPanel.updateRobotInfo();
+                    } catch (RobotException ex) {
+                        handleRobotException(ex);
+                    }
+                    }
+                    break;
+            }
+        }
+        else{
+            JOptionPane.showMessageDialog(window, "Le robot doit être démarré pour se déplacer", "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+    public void mouseMoved(MouseEvent e) {}
+    public void keyReleased(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {}
+
 }

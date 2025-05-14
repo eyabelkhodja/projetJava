@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 public class Window extends JFrame {
     private RobotLivraison robot;
@@ -20,7 +22,6 @@ public class Window extends JFrame {
         ImagePanel imagePanel = new ImagePanel(robot);
         ControlPanel controlPanel = new ControlPanel(robot);
         Actions actions = new Actions(this, robot, imagePanel, controlPanel);
-
         add(imagePanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
 
@@ -32,6 +33,7 @@ public class Window extends JFrame {
         for (JButton button : controlPanel.getButtons()) {
             button.addActionListener(actions);
         }
+
 
 
         setVisible(true);

@@ -5,14 +5,15 @@ public class ImagePanel extends JPanel {
     private JLabel display;
     private JLabel dechetDisplay1;
     private JLabel dechetDisplay2;
+    private JLabel planteDisplay;
     private RobotLivraison robot;
+
     private ImageIcon robotIcon = new ImageIcon("src/robot.png");
     private ImageIcon dechet = new ImageIcon("src/zebla.png");
+    private ImageIcon plante = new ImageIcon("src/plante.png");
 
     public ImagePanel(RobotLivraison robot) {
         this.robot = robot;
-        this.robotIcon = robotIcon;
-        this.dechet = dechet;
 
         setPreferredSize(new Dimension(700, 700));
         setLayout(null);
@@ -41,9 +42,19 @@ public class ImagePanel extends JPanel {
         dechetDisplay2.setBounds(300, 50, 100, 100);
         dechetDisplay2.setToolTipText("Déchet à recycler");
 
+        // Plante icon
+        Image scaledPlanteImage = plante.getImage().getScaledInstance(70, 70, Image.SCALE_SMOOTH);
+        ImageIcon scaledPlanteIcon  = new ImageIcon(scaledPlanteImage);
+
+        planteDisplay = new JLabel(scaledPlanteIcon);
+        planteDisplay.setBounds(400, 500, 100, 100);
+        planteDisplay.setToolTipText("Plante à arroser");
+        planteDisplay.setVisible(false); // Initially hidden
+
         // Add components
         add(dechetDisplay1);
         add(dechetDisplay2);
+        add(planteDisplay);
         add(display);
 
         // Add labels
@@ -72,6 +83,12 @@ public class ImagePanel extends JPanel {
         } else if (x == 0 && y == 400) {
             remove(dechetDisplay1);
         }
+        revalidate();
+        repaint();
+    }
+
+    public void showPlante() {
+        planteDisplay.setVisible(true);
         revalidate();
         repaint();
     }
